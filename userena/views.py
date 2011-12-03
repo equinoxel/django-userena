@@ -19,6 +19,7 @@ from userena.backends import UserenaAuthenticationBackend
 from userena.utils import signin_redirect, get_profile_model
 from userena import signals as userena_signals
 from userena import settings as userena_settings
+from userena.middleware import Http403
 
 from guardian.decorators import permission_required_or_403
 
@@ -551,7 +552,8 @@ def profile_detail(request, username, template_name='userena/profile_detail.html
                              username__iexact=username)
     profile = user.get_profile()
     if not profile.can_view_profile(request.user):
-        return HttpResponseForbidden(_("You don't have permission to view this profile."))
+        raise Http403(_("You don't have permission to view this profile."))
+        #return HttpResponseForbidden(_("You don't have permission to view this profile."))
     if not extra_context: extra_context = dict()
     extra_context['profile'] = user.get_profile()
     return direct_to_template(request,
